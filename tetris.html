@@ -1,0 +1,321 @@
+<html>
+<head>
+    <meta charset="utf-8">
+    <title>Tetris</title>
+
+    <style>
+        td {
+            height: 10px!important; 
+            width: 10px!important; 
+            border: 1px solid gray;
+            }
+    </style>
+</head>
+
+<body>
+<a href="#" onclick="estraiPezzo()">inizia</a> <br>
+<a href="#" onclick="moveDown()">muovi giù</a> <br>
+<a href="#" onclick="moveRight()">muovi DXT</a>
+<a href="#" onclick="moveLeft()">muovi SXT</a>
+<a href="#" onclick="rotate()">ruota</a>
+<br>
+
+<table>
+    <tr>
+        <td>COMANDI: <br></td>
+        <td>GIOCO: <br></td>
+        <td>ANTEPRIMA: <br></td>
+
+    </tr>
+</table>
+
+
+<table>
+<script type="text/javascript">
+for( j=0; j<30; j++) {
+
+        document.write("<tr>");
+            
+        for (i=0; i<16; i++){
+            css= '';
+            if (i<2 || i > 13 || j >= 28) {
+                css= "style='background-color:orange'";
+            }
+            document.write("<td id='r" +j+"c"+i+ "' onclick='colorami(this)' "+css+"> </td>");
+        }
+    document.write("</tr>");
+}
+
+</script>
+
+</table>
+
+<script type="text/javascript">
+ function colorami (elem) {
+     elem.style.backgroundColor = 'orange';
+ }
+
+ function cancellami (elem) {
+     elem.style.backgroundColor = 'white';
+ }
+
+x_corrente = 0;
+y_corrente = 6;
+pezzo_corrente = 0;
+indice_rotazione_corrente = 0;
+indice_pezzo_corrente = 0;
+
+    pezzo_elle=[
+        [
+        [0,1,0],
+        [0,1,0], 
+        [0,1,1],
+    ],
+    [
+        [0,0,0],
+        [1,1,1], 
+        [1,0,0],
+    ]];
+
+
+
+    pezzo_esse = [[
+    [0,1,0],
+    [0,1,1], 
+    [0,0,1],
+    ]];
+
+    pezzo_t = [[
+        [0,1,0],
+        [1,1,1],
+        [0,0,0]
+    ]];
+
+    pezzo_i = [[
+        [0,1,0],
+        [0,1,0],
+        [0,1,0],
+    ]]
+    
+array_pezzi = [
+    pezzo_elle,
+    pezzo_esse,
+    pezzo_t,
+];
+
+pezzo_corrente = pezzo_elle [indice_rotazione_corrente];
+
+function estraiPezzo(){
+    valore = Math.random();
+    indice_rotazione_corrente =0;
+    indice_pezzo_corrente = valore * array_pezzi.length;
+    indice_pezzo_corrente = parseInt (indice_pezzo_corrente);
+
+    pezzo_corrente = array_pezzi[indice_pezzo_corrente] [indice_rotazione_corrente];
+
+   
+}
+
+function controllaRigaPiena(j_riga){
+
+    for (i=0; i<16; i++){
+        id_cella= "r"+ indice_riga+ "c" +i ;
+        cella_schermo= document.getElementById(id_cella);
+        leggiValoreCella(cella_schermo);
+
+        if (valore == 0)
+        return false;
+
+    }
+
+    return true;
+
+}
+
+function controllaRighePiene (){
+    
+
+   for ( j=0; j<3; j++)  {
+        i_riga = x_corrente+j;
+        valore = controllaRigaPiena( i_riga);
+        if (valore == true) {
+            cancellaRiga(i_riga);
+
+        }
+        } 
+
+}
+
+function cancellaRiga (indice_riga) {
+    
+
+    for( j=indice_riga; j>0; j--) {
+
+        for (i=0; i<16; i++){
+
+            id_elem= "r"+ j + "c" + i;
+            id_elem_sopra = "r"+ (j-1) + "c" + i;
+            
+            elem = document.getElementById(id_elem);
+            elemSopra = document.getElementById(id_elem_sopra);
+
+            valoreSopra = leggiValoreCella(elemSopra);
+            if (valoreSopra == 1)
+            colorami(elem);
+            else
+            cancellami(elem);             
+             
+        }
+    }   
+}
+
+function iniziaConNuovoPezzo (){
+    estraiPezzo();
+    x_corrente =0;
+    y_corrente = 6;
+}
+
+//disegnapezzo (pezzo_elle, 2,2);
+function leggiValoreCella (elem) {
+    bgcolor = elem.style.backgroundColor;
+    if (bgcolor == 'white' || bgcolor== '')
+     return 0;
+     else
+        return 1;
+    }
+
+function controllaCollisione ( pezzo, x, y) {
+
+    for( i=0; i<3; i++) {
+            for (j=0; j<3; j++) {
+
+                valore_cella_pezzo = pezzo [i] [j];
+                
+                posx= x + i;
+                posy= y +j;
+                idcella= "r" +posx+"c"+posy
+                cella_schermo = document.getElementById('r'+posx+'c'+posy); 
+                
+                valore_cella_schermo= leggiValoreCella (cella_schermo);
+
+                if(valore_cella_pezzo + valore_cella_schermo > 1) {
+                    return true;
+                }
+            }
+        }
+        return false;
+
+}
+
+function disegnapezzo (pezzo, x, y) {
+
+        for( i=0; i<3; i++) {
+            for (j=0; j<3; j++) {
+                if(pezzo[i][j] == 1) {
+                    posx= x + i;
+                    posy = y +j;
+                    elem = document.getElementById('r'+posx+'c'+posy);
+                    colorami (elem);
+                }
+
+            }
+        }
+}
+
+function cancellaPezzo(pezzo, x,y) {
+    for( i=0; i<3; i++) {
+            for (j=0; j<3; j++) {
+                if(pezzo[i][j] == 1) {
+                    posx= x + i;
+                    posy = y +j;
+                    elem = document.getElementById('r'+posx+'c'+posy);
+                    cancellami (elem);
+                }
+
+            }
+        }
+}
+
+function ruotapezzo () {
+
+    rotazioni = array_pezzi[indice_pezzo_corrente];
+
+    indice_rotazione_corrente =  indice_rotazione_corrente + 1;
+    if (indice_rotazione_corrente >= rotazioni.lenght)
+        indice_rotazione_corrente = 0;
+
+    matrice = array_pezzi[indice_pezzo_corrente] [indice_rotazione_corrente];
+    return matrice;
+
+}
+
+
+function rotate() {
+    cancellaPezzo (pezzo_corrente, x_corrente, y_corrente);
+
+    pezzo_temp= disegnaPezzoRuotato();
+
+    if (controllaCollisione (pezzo_corrente, x_temp, y_corrente)== true){
+        disegnapezzo (pezzo_corrente, x_corrente, y_corrente);
+        return; 
+        }
+
+        pezzo_corrente = pezzo_temp
+        disegnapezzo (pezzo_corrente, x_corrente, y_corrente);
+
+
+}
+
+function moveDown() {
+
+    cancellaPezzo (pezzo_corrente, x_corrente, y_corrente);
+    x_temp = x_corrente +1;
+
+    if (controllaCollisione (pezzo_corrente, x_temp, y_corrente)== true){
+        disegnapezzo (pezzo_corrente, x_corrente, y_corrente);
+
+        controllaRighePiene();
+
+        iniziaConNuovoPezzo();
+
+    return;
+    }
+    x_corrente = x_temp;
+    disegnapezzo (pezzo_corrente, x_corrente, y_corrente);
+}
+
+function moveLeft() {
+    cancellaPezzo (pezzo_corrente, x_corrente, y_corrente);
+
+    y_temp = y_corrente -1;
+    if (controllaCollisione (pezzo_corrente, x_corrente, y_temp)== true){
+        disegnapezzo (pezzo_corrente, x_corrente, y_corrente);
+        return;
+    }
+       
+    y_corrente = y_corrente -1;
+    disegnapezzo (pezzo_corrente, x_corrente, y_corrente);
+}
+
+function moveRight() {
+    cancellaPezzo (pezzo_corrente, x_corrente, y_corrente);
+    y_temp = y_corrente +1;
+    if (controllaCollisione (pezzo_corrente, x_corrente, y_temp)== true){
+        disegnapezzo (pezzo_corrente, x_corrente, y_corrente);
+        return;
+    }
+
+ 
+    y_corrente = y_temp;
+    disegnapezzo (pezzo_corrente, x_corrente, y_corrente);
+}
+
+
+</script>
+
+
+
+</body>
+
+
+</html>
